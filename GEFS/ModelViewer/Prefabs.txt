@@ -1,0 +1,90 @@
+#A collection of models (prefabs) to be loaded to the scenegraph structure
+#These models can be instantiated from main.lua script with the command
+# addModel(modelName, posX, posY, posZ)
+
+modelDir = ./models/
+
+[Copper Pan]
+translate 0 0.3 0
+scale 0.04
+rotate -20 0 0 1
+objModel = pan.obj  
+
+[Cube]
+translate 0 0.4 0
+scale 0.35
+rotate 100 0 1 0
+flatModel = cube.txt  
+
+[Ring]
+translate 0 0.4 0
+scale 0.35
+rotate 100 0 1 0
+objModel = the_crowned_ring.obj  
+
+[Soccer Ball]
+translate 0 .6 0
+scale 0.3
+rotate 0 0 1 0
+objModel = Soccer.obj 
+
+[Thonet S43 Chair]
+translate 0 0 0
+scale 0.0014
+rotate 0 0 1 0
+objModel = mpm_f16__Thonet_S43_chair.obj  
+
+[Bookcase]
+scale .45
+rotate 70 0 1 0
+objModel = Bookcase_Books.obj
+
+[Frog]
+scale .3
+objModel = Frog.obj
+
+[Silver Knot]
+material [Silver]
+scale 1
+translate 0 1 0
+flatModel = knot.txt
+
+[Gold Knot]
+material [Gold]
+scale 1
+translate 0 1 0
+rotate -90 1 0 0
+rotate 30 0 1 0
+flatModel = knot.txt
+
+[FloorPart]
+scalexyz 1 1 1
+objModel = Floor_Modular.obj
+
+[Floor]
+scalexyz 30 .1 30
+flatModel = cube.txt 
+
+[Windmill]
+scale .2
+rotate 0 0 1 0
+objModel = TowerWindmill.obj 
+
+[Pool Table]  #Shows texture atlas-sytle approach
+scale .01
+rotate -90 1 0 0
+objModel = 10523_Pool_Table_v1_L3.obj 
+
+
+
+
+
+
+
+
+
+#[Head]
+#scale 2
+#translate 0 .5 0
+#rotate 0 0 1 0
+#objModel = head.obj 

@@ -1,0 +1,9 @@
+skyColor = .1 .2 1.5
+
+CameraFOV = 40
+ambientLight = .3 .3 .3
+
+[Sun]
+lightDir = 0.3 -1 0.5 
+lightCol = 1 1 1
+lightIntensity = 3

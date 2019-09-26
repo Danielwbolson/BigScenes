@@ -1,0 +1,19 @@
+//Sets lighting and other environment parameters
+
+skybox = ./SkyBoxes/Teide/       // Teide Simple
+skyboxUp = 0 1 0   //Default is y up
+#skyColor = 1 1 10
+
+
+CameraFOV = 50
+
+ambientLight = .3 .3 .3
+
+[Sun]
+lightDir = -.3 -1.0 .4   #-4 -10 -1
+lightDist = 5
+lightCol = .9 .9 1
+lightIntensity = 4
+lightCastShadow //only the one light can cast a shadow
+shadowBias = .004
+shadowFrustum = -6 6 -6 6 1 10 //left, right, bottom, top, near, far planes

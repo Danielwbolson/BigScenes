@@ -1,0 +1,15 @@
+Game Engine From Scratch Sample Code
+Author: Stephen J. Guy <sjguy@umn.edu>
+
+This code is intended for educational proposes.
+For all other uses, please contact the author.
+
+This code make use of several libraries incuding: 
+  -The STB image library - https://github.com/nothings/stb [Public Domain License]
+  -The Loguru C++ logging library - https://github.com/emilk/loguru [Public Domain License]
+  -ImGui GUI library - https://github.com/ocornut/imgui [MIT License]
+  -Lua - https://www.lua.org/ [MIT License]
+
+Please respect the licensing terms of these libraries. Additionally, while none of these
+libraries strictly require acknolwement, it is always best practices to give credit to 
+give explicit credit to any code or data that you used from elsewhere.

@@ -1,0 +1,32 @@
+Resources
+
+Lowpoly 3D models
+http://quaternius.com/assets.html - CC0
+
+Skybox / Environment Maps / Cubemap
+http://www.custommapmakers.org/skyboxes.php - GPL
+
+Standard models used in Computer graphics
+https://casual-effects.com/data/
+
+Bensound - Free for non-profit games (with credits)
+Background music with 
+https://www.bensound.com/
+
+Stock Images - Free (including commercial)
+https://www.pexels.com/
+
+Free3d - Free for personal use
+https://free3d.com/3d-models/
+
+Online community for game assets (mostly free)
+https://www.reddit.com/r/gameassets/
+
+Many free public domain game assets (audio, 2D models, 3D models)
+https://kenney.nl/
+
+Free Sampler from PMS-FX Sound effects company (royalty free for commercial)
+https://www.pmsfx.com/free
+
+Free models from NASA!
+https://nasa3d.arc.nasa.gov

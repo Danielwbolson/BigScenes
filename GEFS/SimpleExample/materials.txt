@@ -1,0 +1,73 @@
+#This is the material file, here we specify all the materials needed by the game scene
+
+textureDir  = ./textures/
+
+[Aluminium]
+metallic = .8
+smoothness = 0.7
+ior = 2.0
+color = .91 .92 .92
+
+[Nickel]
+metallic = .9
+smoothness = 0.6
+ior = 2.0
+color = .66 .6 .5 
+
+[Steel]
+metallic = .9
+smoothness = 0.6
+ior = 2.0
+color = .6 .62 .62 
+
+[Gold]
+metallic = .9
+smoothness = 0.8
+ior = 2.0
+reflectiveness = 0.01
+color = 1 .8 .14
+color = .85 .65 .13
+
+
+[Polished Wood]
+texture = wood.jpg
+metallic = 0
+smoothness = 0.90
+ior = 1.4
+#color = 0.8 0.4 0.2
+color = 1 1 1
+
+[Dark Polished Wood]
+texture = wood.jpg
+metallic = 0
+smoothness = 0.90
+ior = 1.4
+#color = 0.8 0.4 0.2
+color = .75 .2 .2
+
+[Shiny Red Plastic]
+metallic = 0
+smoothness = 0.9
+ior = 1.5
+color = 0.9 0.05 0.05
+#emissive = 2 1 1
+#texture = brick.jpg
+#color = 1 1 1 
+
+[Clay]
+metallic = 0
+smoothness = 0.4
+ior = 1.5
+color = 0.6 0.4 0.2
+
+[Warm Light]
+color = 1 1 1
+emissive = 30 20 1
+
+[Glowly White]
+color = 1 1 1
+emissive = 10 10 10
+
+[Red Light]
+color = 1 1 1
+emissive = 50 3 2

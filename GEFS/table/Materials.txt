@@ -1,0 +1,8 @@
+textureDir  = ./textures/
+
+[Dark Polished Wood]
+texture = wood.jpg
+metallic = 0
+smoothness = 0.8
+ior = 1.4
+color = .75 .2 .2

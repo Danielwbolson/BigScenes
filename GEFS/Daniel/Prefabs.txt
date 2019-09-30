@@ -3,6 +3,12 @@ modelDir = ./models/
 
 #teapot knot sphere teapotLowPoly teapot cube
 
+[Building_05]
+objModel = building_05.obj
+
+[Building_04]
+objModel = building_04.obj
+
 [TeapotLowPoly]
 rotate 90 1 0 0
 scale .9

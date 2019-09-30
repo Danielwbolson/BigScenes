@@ -41,6 +41,7 @@ include_directories(${SDL2_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${CMAKE_SOURCE_D
 
  
 file(GLOB srcFiles engineCode/*.cpp external/*.cpp)
+file(GLOB headerFiles engineCode/*.h)
 #message(STATUS ${srcFiles} )
  
 file(GLOB glad_src glad/*.c)
@@ -62,7 +63,7 @@ add_library(Lua ${lua_src})
 #endforeach()
  
  
-add_executable(engine ${srcFiles})
+add_executable(engine ${srcFiles} ${headerFiles})
 target_link_libraries(engine ${OPENGL_LIBRARIES} ${SDL2_LIBRARIES} glad imgui Lua ${CMAKE_DL_LIBS})
  
 set_target_properties( engine

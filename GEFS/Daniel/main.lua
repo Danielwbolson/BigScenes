@@ -59,4 +59,6 @@ placeModel(floorID,0,-.02,0)
 scaleModel(floorID,3,1,3)
 setModelMaterial(floorID,"Gold")
 
-dinoID = addModel("Dino",0,0,-.15)
+
+cyprus_houseID = addModel("Digger", 0, 0, 0)
+scaleModel(cyprus_houseID, 0.3, 0.3, 0.3)

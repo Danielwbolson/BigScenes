@@ -48,17 +48,6 @@ function keyHandler(keys)
   end
 end
 
-teapotID = addModel("Teapot",0,0,0)
-setModelMaterial(teapotID,"Shiny Red Plastic")
---setModelMaterial(teapotID,"Steel")
-animatedModels[teapotID] = true
-rotYVelModel[teapotID] = 1
 
-floorID = addModel("FloorPart",0,0,0)
-placeModel(floorID,0,-.02,0)
-scaleModel(floorID,3,1,3)
-setModelMaterial(floorID,"Gold")
-
-
-cyprus_houseID = addModel("Digger", 0, 0, 0)
-scaleModel(cyprus_houseID, 0.3, 0.3, 0.3)
+chaletID = addModel("Chalet", 0, 0, 0)
+scaleModel(chaletID, 0.3, 0.3, 0.3)

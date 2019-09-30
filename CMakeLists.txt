@@ -14,6 +14,9 @@ project(${PROJECT_NAME})
 #Set C++11
 set( CMAKE_CXX_STANDARD 11 )
 set( CMAKE_CXX_STANDARD_REQUIRED ON )
+
+set(LAPTOP_SDL D:/SDL2-2.0.8/)
+set(DESKTOP_SDL E:/SDL2-2.0.10/)
  
 find_package(OpenGL REQUIRED)
  
@@ -24,8 +27,11 @@ if (UNIX AND NOT APPLE)
 elseif (APPLE)
   find_package( SDL2 REQUIRED component main)
 elseif(MSVC)
-  link_directories( E:/SDL2-2.0.10/lib/x64 )
-  set( SDL2_INCLUDE_DIRS E:/SDL2-2.0.10/include )
+  #link_directories( ${DESKTOP_SDL}lib/x64 )
+  #set( SDL2_INCLUDE_DIRS ${DESKTOP_SDL}include )
+  link_directories( ${LAPTOP_SDL}lib/x64)
+  set(SDL2_INCLUDE_DIRS ${LAPTOP_SDL}include)
+  
   set( SDL2_LIBRARIES SDL2 SDL2main )
 endif()
 

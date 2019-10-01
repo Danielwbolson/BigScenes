@@ -124,7 +124,7 @@ int main(int argc, char *argv[]){
 	initPBRShading();
 	initColliderGeometry(); //Depends on PBRShading being initalized
 	initSkyboxBuffers();
-  initShadowBuffers();
+	initShadowBuffers();
 
 	//Create a quad to be used for fullscreen rendering
 	createFullscreenQuad();

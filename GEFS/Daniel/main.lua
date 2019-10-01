@@ -1,13 +1,13 @@
 --Daniel
 print("Starting Lua for Daniel")
 
-CameraPosX = -3.0
-CameraPosY = 1.0
-CameraPosZ = 0.0
+CameraPosX = 15.0
+CameraPosY = 3.0
+CameraPosZ = 5.0
 
-CameraDirX = 1.0
-CameraDirY = -0.0
-CameraDirZ = -0.0
+CameraDirX = 0.0
+CameraDirY = 0.0
+CameraDirZ = -1.0
 
 CameraUpX = 0.0
 CameraUpY = 1.0
@@ -35,19 +35,23 @@ end
 
 function keyHandler(keys)
   if keys.left then
-    translateModel(dinoID,0,0,-0.1)
+	CameraPosX = CameraPosX - 0.1;
   end
   if keys.right then
-    translateModel(dinoID,0,0,0.1)
+	CameraPosX = CameraPosX + 0.1;
   end
   if keys.up then
-    translateModel(dinoID,0.1,0,0)
+	CameraPosZ = CameraPosZ - 0.1;
   end
   if keys.down then
-    translateModel(dinoID,-0.1,0,0)
+	CameraPosZ = CameraPosZ + 0.1;
   end
 end
 
 
-chaletID = addModel("Chalet", 0, 0, 0)
-scaleModel(chaletID, 0.3, 0.3, 0.3)
+for i=0,60,3 do
+	for j=0,60,3 do
+		chaletID = addModel("Chalet", i, 0, -j)
+		scaleModel(chaletID, 1.5, 1.5, 1.5)
+	end
+end

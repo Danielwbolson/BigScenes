@@ -109,7 +109,7 @@ void loadModel(string fileName){
     if (commandStr.substr(0,1) == "["){ // "[" indicates new model
 		  int closeBrackets = line.find("]");
 			CHECK_F(closeBrackets >= 0,"ERROR: Model name opened with [ but not closed with ]");
-      modelName = line.substr(1,closeBrackets-1);
+			modelName = line.substr(1,closeBrackets-1);
 			curModelID = addModel(modelName);
 			LOG_F(INFO,"Creating PreFab Model with name: %s",modelName.c_str());
     }
@@ -176,8 +176,8 @@ void loadModel(string fileName){
 			modelFile.close();
     }
 		else if (commandStr == "objModel"){ 
-      char objFile[1024];
-      sscanf(rawline,"objModel = %s", objFile);
+			char objFile[1024];
+			sscanf(rawline,"objModel = %s", objFile);
 
 			LOG_F(1,"Loading obj model %s starting at ID: %d",(modelDir + objFile).c_str(),curModelID);
 			tinyobj::attrib_t objAttrib;
@@ -248,6 +248,16 @@ void loadModel(string fileName){
 					LOG_F(1,"Binding material: '%s' (Material ID %d) to Model %d",materialName.c_str(),materialID,childModelID);
 					models[childModelID].materialID = materialID; 
 				}
+
+				// Measurements to determine bounding box, per shape (child)
+				float minVx = INFINITY;
+				float minVy = INFINITY;
+				float minVz = INFINITY;
+
+				float maxVx = -INFINITY;
+				float maxVy = -INFINITY;
+				float maxVz = -INFINITY;
+
 				// Loop over faces(polygon)
 				size_t index_offset = 0;
 				for (size_t f = 0; f < objShapes[s].mesh.num_face_vertices.size(); f++) {
@@ -292,6 +302,14 @@ void loadModel(string fileName){
 						tinyobj::real_t vy = objAttrib.vertices[3*idx.vertex_index+1];
 						tinyobj::real_t vz = objAttrib.vertices[3*idx.vertex_index+2];
 
+						// Bounds setting
+						if (vx < minVx) { minVx = vx; }
+						if (vx > maxVx) { maxVx = vx; }
+						if (vy < minVy) { minVy = vy; }
+						if (vy > maxVy) { maxVy = vy; }
+						if (vz < minVz) { minVz = vz; }
+						if (vz > maxVz) { maxVz = vz; }
+
 						CHECK_F(objAttrib.normals.size() > 0 && idx.normal_index >=0, "All objects need normals to load");
 						//TODO: We should really compute normals if none are give to us (@HW)
 						tinyobj::real_t nx = objAttrib.normals[3*idx.normal_index+0];
@@ -314,7 +332,13 @@ void loadModel(string fileName){
 
 					// per-face material
 					objShapes[s].mesh.material_ids[f];
+
 				}
+
+				// Set our bounds
+				models[curModelID].bounds->max = glm::vec3(maxVx, maxVy, maxVz);
+				models[curModelID].bounds->min = glm::vec3(minVx, minVy, minVz);
+
 			}
 			//Copy vertex data read so far into the model
 			int numAttribs = vertexData.size();

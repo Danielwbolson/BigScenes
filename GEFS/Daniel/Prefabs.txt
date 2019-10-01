@@ -1,13 +1,5 @@
 
 modelDir = ./models/
 
-#teapot knot sphere teapotLowPoly teapot cube
-
-#[Building_05]
-#objModel = building_05.obj
-
-#[Building_04]
-#objModel = building_04.obj
-
 [Chalet]
-objModel = untitled.obj
+objModel = chalet.obj

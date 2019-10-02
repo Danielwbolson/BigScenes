@@ -95,14 +95,14 @@ bool frustumCull(const Model& model, const glm::mat4& transform, const glm::mat4
 /* http://www8.cs.umu.se/kurser/5DV051/HT12/lab/plane_extraction.pdf */
 	glm::vec4 left		= glm::vec4(pv[0][3] + pv[0][0], pv[1][3] + pv[1][0], pv[2][3] + pv[2][0], pv[3][3] + pv[3][0]);
 	glm::vec4 right		= glm::vec4(pv[0][3] - pv[0][0], pv[1][3] - pv[1][0], pv[2][3] - pv[2][0], pv[3][3] - pv[3][0]);
-	glm::vec4 top		= glm::vec4(pv[0][3] + pv[0][1], pv[1][3] + pv[1][1], pv[2][3] + pv[2][1], pv[3][3] + pv[3][1]);
-	glm::vec4 bottom	= glm::vec4(pv[0][3] - pv[0][1], pv[1][3] - pv[1][1], pv[2][3] - pv[2][1], pv[3][3] - pv[3][1]);
+	glm::vec4 bottom	= glm::vec4(pv[0][3] + pv[0][1], pv[1][3] + pv[1][1], pv[2][3] + pv[2][1], pv[3][3] + pv[3][1]);
+	glm::vec4 top		= glm::vec4(pv[0][3] - pv[0][1], pv[1][3] - pv[1][1], pv[2][3] - pv[2][1], pv[3][3] - pv[3][1]);
 	glm::vec4 nearPlane = glm::vec4(		   pv[0][2],			pv[1][2],			 pv[2][2],			  pv[3][2]);
 	glm::vec4 farPlane	= glm::vec4(pv[0][3] - pv[0][2], pv[1][3] - pv[1][2], pv[2][3] - pv[2][2], pv[3][3] - pv[3][2]);
 
 	Bounds b = *(model.bounds);
 	glm::vec4 tbMax = transform * glm::vec4(b.Max(transform), 1);
-	glm::vec4 tbMin = transform * glm::vec4(b.Max(transform), 1);
+	glm::vec4 tbMin = transform * glm::vec4(b.Min(transform), 1);
 	glm::vec3 max = glm::vec3(tbMax.x, tbMax.y, tbMax.z);
 	glm::vec3 min = glm::vec3(tbMin.x, tbMin.y, tbMin.z);
 

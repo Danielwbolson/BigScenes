@@ -45,7 +45,6 @@ struct Bounds {
 		for (int i = 0; i < b.points.size(); i++) {
 			points.push_back(b.points[i]);
 		}
-		//points = b.points;
 
 		return *this;
 	}
@@ -54,14 +53,13 @@ struct Bounds {
 		float newMaxX = -INFINITY;
 		float newMaxY = -INFINITY;
 		float newMaxZ = -INFINITY;
-		std::vector<glm::vec4> newPoints;
 
 		for (int i = 0; i < points.size(); i++) {
-			newPoints.push_back(t*points[i]);
+			glm::vec4 p = t*points[i];
 
-			if (newPoints[i].x > newMaxX) newMaxX = newPoints[i].x;
-			if (newPoints[i].y > newMaxY) newMaxY = newPoints[i].y;
-			if (newPoints[i].z > newMaxZ) newMaxZ = newPoints[i].z;
+			if (p.x > newMaxX) newMaxX = p.x;
+			if (p.y > newMaxY) newMaxY = p.y;
+			if (p.z > newMaxZ) newMaxZ = p.z;
 		}
 
 		return glm::vec3(newMaxX, newMaxY, newMaxZ);
@@ -71,14 +69,13 @@ struct Bounds {
 		float newMinX = INFINITY;
 		float newMinY = INFINITY;
 		float newMinZ = INFINITY;
-		std::vector<glm::vec4> newPoints;
 
 		for (int i = 0; i < points.size(); i++) {
-			newPoints.push_back(t*points[i]);
+			glm::vec4 p = t*points[i];
 
-			if (newPoints[i].x < newMinX) newMinX = newPoints[i].x;
-			if (newPoints[i].y < newMinY) newMinY = newPoints[i].y;
-			if (newPoints[i].z < newMinZ) newMinZ = newPoints[i].z;
+			if (p.x < newMinX) newMinX = p.x;
+			if (p.y < newMinY) newMinY = p.y;
+			if (p.z < newMinZ) newMinZ = p.z;
 		}
 
 		return glm::vec3(newMinX, newMinY, newMinZ);
@@ -90,7 +87,7 @@ struct Model{
 	int ID = -1;
 	glm::mat4 transform;
 	glm::mat4 modelOffset; //Just for placing geometry, not passed down the scene graph
-	float* modelData = 0;
+	float* modelData = nullptr;
 	int startVertex;
 	int numVerts = 0;
 	int numChildren = 0;

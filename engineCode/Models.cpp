@@ -229,9 +229,19 @@ void loadModel(string fileName){
 			int objChild = 0;
 			string childName = objFile+string("-Child-")+std::to_string(objChild);
 			int childModelID = addModel(childName); //add Childs
+			models[childModelID].modelData = nullptr;
 			LOG_F(1,"Loading obj child model %s as IDs: %d", (childName).c_str(),childModelID);
 
 			std::vector<float> vertexData;
+
+			// Measurements to determine bounding box, per shape (child)
+			float minVx = INFINITY;
+			float minVy = INFINITY;
+			float minVz = INFINITY;
+
+			float maxVx = -INFINITY;
+			float maxVy = -INFINITY;
+			float maxVz = -INFINITY;
 
 			// Loop over shapes
 			for (size_t s = 0; s < objShapes.size(); s++) {
@@ -248,15 +258,6 @@ void loadModel(string fileName){
 					LOG_F(1,"Binding material: '%s' (Material ID %d) to Model %d",materialName.c_str(),materialID,childModelID);
 					models[childModelID].materialID = materialID; 
 				}
-
-				// Measurements to determine bounding box, per shape (child)
-				float minVx = INFINITY;
-				float minVy = INFINITY;
-				float minVz = INFINITY;
-
-				float maxVx = -INFINITY;
-				float maxVy = -INFINITY;
-				float maxVz = -INFINITY;
 
 				// Loop over faces(polygon)
 				size_t index_offset = 0;
@@ -335,17 +336,17 @@ void loadModel(string fileName){
 					objShapes[s].mesh.material_ids[f];
 
 				}
-
-				// Set our bounds
-				models[curModelID].bounds = new Bounds(minVx, minVy, minVz, maxVx, maxVy, maxVz);
-
 			}
+
+			// Set our bounds
+			models[curModelID].bounds = new Bounds(minVx, minVy, minVz, maxVx, maxVy, maxVz);
+			models[childModelID].bounds = new Bounds(minVx, minVy, minVz, maxVx, maxVy, maxVz);
+
 			//Copy vertex data read so far into the model
 			int numAttribs = vertexData.size();
 			models[childModelID].modelData = new float[numAttribs];
 			std::copy(vertexData.begin(),vertexData.end(),models[childModelID].modelData);
 			models[childModelID].numVerts = numAttribs/8;
-			models[childModelID].bounds = new Bounds();
 			LOG_F(1,"Loaded %d vertices",models[childModelID].numVerts);
 			addChild(childName, curModelID);
     }

@@ -256,6 +256,9 @@ int main(int argc, char *argv[]){
 		// 3. Bluring Bloom
 		// 4. Composite and tone map
 
+
+		//TODO: DANIEL --> Only compute shadows of necessary models
+
 		//------ PASS 1 - Shadow map ----------------------
 		static mat4 lightProjectionMatrix, lightViewMatrix;
 		
@@ -280,9 +283,7 @@ int main(int argc, char *argv[]){
 
 		//------ PASS 2 - Main (PBR) Shading Pass --------------------
 
-		mat4 view = glm::lookAt(camPos, //Camera Position
-																lookatPoint, //Point to look at (camPos + camDir)
-		  													camUp);     //Camera Up direction
+		mat4 view = glm::lookAt(camPos,	lookatPoint, camUp);
 		mat4 proj = glm::perspective(FOV * 3.14f/180, screenWidth / (float) screenHeight, nearPlane, farPlane); //FOV, aspect, near, far
 		//view = lightViewMatrix; proj = lightProjectionMatrix;  //This was useful to visualize the shadowmap
 
@@ -293,7 +294,7 @@ int main(int argc, char *argv[]){
 		glClearColor(0,0,0,1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		drawSceneGeometry(curScene.toDraw); //Pass 2A: Draw Scene Geometry
+		drawSceneGeometry(curScene.toDraw, proj * view); //Pass 2A: Draw Scene Geometry
 		//drawSceneGeometry(curScene.toDraw, camDir, camPos); //Pass 2A: Draw Scene Geometry
 		//TODO: Add a pass which draws some items without depth culling (e.g. keys, items)
 		if (drawColliders) drawColliderGeometry(); //Pass 2B: Draw Colliders

@@ -275,6 +275,7 @@ void loadModel(string fileName){
 						models[childModelID].modelData = new float[numAttribs];
 						std::copy(vertexData.begin(),vertexData.end(),models[childModelID].modelData);
 						models[childModelID].numVerts = numAttribs/8;
+						models[childModelID].bounds = new Bounds();
 						LOG_F(1,"Loaded %d vertices",models[childModelID].numVerts);
 						addChild(childName, curModelID);
 
@@ -336,8 +337,7 @@ void loadModel(string fileName){
 				}
 
 				// Set our bounds
-				models[curModelID].bounds->max = glm::vec3(maxVx, maxVy, maxVz);
-				models[curModelID].bounds->min = glm::vec3(minVx, minVy, minVz);
+				models[curModelID].bounds = new Bounds(minVx, minVy, minVz, maxVx, maxVy, maxVz);
 
 			}
 			//Copy vertex data read so far into the model
@@ -345,6 +345,7 @@ void loadModel(string fileName){
 			models[childModelID].modelData = new float[numAttribs];
 			std::copy(vertexData.begin(),vertexData.end(),models[childModelID].modelData);
 			models[childModelID].numVerts = numAttribs/8;
+			models[childModelID].bounds = new Bounds();
 			LOG_F(1,"Loaded %d vertices",models[childModelID].numVerts);
 			addChild(childName, curModelID);
     }

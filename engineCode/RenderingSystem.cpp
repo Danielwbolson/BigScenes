@@ -28,9 +28,10 @@ GLint xxxID;
 
 GLuint colliderVAO; //Build a Vertex Array Object for the collider
 
-void drawGeometry(Model model, int matID, glm::mat4 transform = glm::mat4(), glm::vec2 textureWrap=glm::vec2(1,1), glm::vec3 modelColor=glm::vec3(1,1,1));
+void drawGeometry(Model model, int matID, glm::mat4 transform = glm::mat4(), const glm::mat4& projViewMat = glm::mat4(), glm::vec2 textureWrap=glm::vec2(1,1), glm::vec3 modelColor=glm::vec3(1,1,1));
+bool frustumCull(const Model& model, const glm::mat4& transform, const glm::mat4& projViewMat);
 
-void drawGeometry(Model model, int materialID, glm::mat4 transform, glm::vec2 textureWrap, glm::vec3 modelColor){
+void drawGeometry(Model model, int materialID, glm::mat4 transform, const glm::mat4& projViewMat, glm::vec2 textureWrap, glm::vec3 modelColor){
 	//printf("Model: %s, num Children %d\n",model.name.c_str(), model.numChildren);
 	//printf("Material ID: %d (passed in id = %d)\n", model.materialID,materialID);
 	//printf("xyx %f %f %f %f\n",model.transform[0][0],model.transform[0][1],model.transform[0][2],model.transform[0][3]);
@@ -50,12 +51,16 @@ void drawGeometry(Model model, int materialID, glm::mat4 transform, glm::vec2 te
 	//textureWrap *= model.textureWrap; //TODO: Where best to apply textureWrap transform?
 	
 	for (int i = 0; i < model.numChildren; i++){
-		drawGeometry(*model.childModel[i], materialID, transform,textureWrap, modelColor);
+		drawGeometry(*model.childModel[i], materialID, transform, projViewMat, textureWrap, modelColor);
 	}
 	if (!model.modelData) return;
 	
 	transform *= model.modelOffset;
 	textureWrap *= model.textureWrap; //TODO: Should textureWrap stack like this?
+
+
+	if (frustumCull(model, transform, projViewMat)) return;
+
 
 	glUniformMatrix4fv(uniModelMatrix, 1, GL_FALSE, glm::value_ptr(transform));
 
@@ -85,6 +90,49 @@ void drawGeometry(Model model, int materialID, glm::mat4 transform, glm::vec2 te
 	glDrawArrays(GL_TRIANGLES, model.startVertex, model.numVerts); //(Primitive Type, Start Vertex, End Vertex) //Draw only 1st object
 }
 
+bool frustumCull(const Model& model, const glm::mat4& transform, const glm::mat4& pv) {
+	//TODO: DANIEL --> Determine which models are even worth drawing
+/* http://www8.cs.umu.se/kurser/5DV051/HT12/lab/plane_extraction.pdf */
+	glm::vec4 left		= glm::vec4(pv[0][3] + pv[0][0], pv[1][3] + pv[1][0], pv[2][3] + pv[2][0], pv[3][3] + pv[3][0]);
+	glm::vec4 right		= glm::vec4(pv[0][3] - pv[0][0], pv[1][3] - pv[1][0], pv[2][3] - pv[2][0], pv[3][3] - pv[3][0]);
+	glm::vec4 top		= glm::vec4(pv[0][3] + pv[0][1], pv[1][3] + pv[1][1], pv[2][3] + pv[2][1], pv[3][3] + pv[3][1]);
+	glm::vec4 bottom	= glm::vec4(pv[0][3] - pv[0][1], pv[1][3] - pv[1][1], pv[2][3] - pv[2][1], pv[3][3] - pv[3][1]);
+	glm::vec4 nearPlane = glm::vec4(		   pv[0][2],			pv[1][2],			 pv[2][2],			  pv[3][2]);
+	glm::vec4 farPlane	= glm::vec4(pv[0][3] - pv[0][2], pv[1][3] - pv[1][2], pv[2][3] - pv[2][2], pv[3][3] - pv[3][2]);
+
+	Bounds b = *(model.bounds);
+	glm::vec4 tbMax = transform * glm::vec4(b.Max(transform), 1);
+	glm::vec4 tbMin = transform * glm::vec4(b.Max(transform), 1);
+	glm::vec3 max = glm::vec3(tbMax.x, tbMax.y, tbMax.z);
+	glm::vec3 min = glm::vec3(tbMin.x, tbMin.y, tbMin.z);
+
+	std::vector<glm::vec3> cam_to_b;
+	cam_to_b.push_back(glm::vec3(max.x, max.y, max.z));
+	cam_to_b.push_back(glm::vec3(max.x, min.y, max.z));
+	cam_to_b.push_back(glm::vec3(max.x, max.y, min.z));
+	cam_to_b.push_back(glm::vec3(max.x, min.y, min.z));
+	cam_to_b.push_back(glm::vec3(min.x, max.y, max.z));
+	cam_to_b.push_back(glm::vec3(min.x, min.y, max.z));
+	cam_to_b.push_back(glm::vec3(min.x, max.y, min.z));
+	cam_to_b.push_back(glm::vec3(min.x, min.y, min.z));
+
+	for (int j = 0; j < cam_to_b.size(); j++) {
+		int success = 0;
+		success += (left.x		* cam_to_b[j].x + left.y	  * cam_to_b[j].y + left.z		* cam_to_b[j].z + left.w > 0);
+		success += (right.x		* cam_to_b[j].x + right.y	  * cam_to_b[j].y + right.z		* cam_to_b[j].z + right.w > 0);
+		success += (top.x		* cam_to_b[j].x + top.y		  * cam_to_b[j].y + top.z		* cam_to_b[j].z + top.w > 0);
+		success += (bottom.x	* cam_to_b[j].x + bottom.y	  * cam_to_b[j].y + bottom.z	* cam_to_b[j].z + bottom.w > 0);
+		success += (nearPlane.x * cam_to_b[j].x + nearPlane.y * cam_to_b[j].y + nearPlane.z	* cam_to_b[j].z + nearPlane.w > 0);
+		success += (farPlane.x  * cam_to_b[j].x + farPlane.y  * cam_to_b[j].y + farPlane.z	* cam_to_b[j].z + farPlane.w > 0);
+
+		if (success == 6) {
+			return false;
+		}
+	}
+
+	return true;
+
+}
 void drawColliderGeometry(){ //, Material material //TODO: Take in a material for the colliders
 	//printf("Drawing %d Colliders\n",collisionModels.size());
 	//printf("Material ID: %d\n", material);
@@ -396,14 +444,14 @@ void updatePRBShaderSkybox(){
 	}
 }
 
-void drawSceneGeometry(vector<Model*> toDraw){
+void drawSceneGeometry(vector<Model*> toDraw, const glm::mat4& projViewMat){
 	glBindVertexArray(modelsVAO);
 
 	glm::mat4 I;
 	totalTriangles = 0;
 	for (size_t i = 0; i < toDraw.size(); i++){
 		//printf("%s - %d\n",toDraw[i]->name.c_str(),i);
-		drawGeometry(*toDraw[i], -1, I);
+		drawGeometry(*toDraw[i], -1, I, projViewMat);
 	}
 }
 

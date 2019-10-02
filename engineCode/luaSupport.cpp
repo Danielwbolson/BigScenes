@@ -177,6 +177,8 @@ int addModel(lua_State * L){
 		models[myModelID].transform = glm::translate(models[myModelID].transform, glm::vec3(tx,ty,tz));
 	}
 
+	models[myModelID].bounds = models[myModelID].childModel[0]->bounds;
+
 	curScene.toDraw.push_back(&models[myModelID]);
 
 	lua_pushnumber(L, myModelID);

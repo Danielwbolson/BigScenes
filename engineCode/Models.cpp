@@ -276,7 +276,6 @@ void loadModel(string fileName){
 						models[childModelID].modelData = new float[numAttribs];
 						std::copy(vertexData.begin(),vertexData.end(),models[childModelID].modelData);
 						models[childModelID].numVerts = numAttribs/8;
-						models[childModelID].bounds = new Bounds();
 						LOG_F(1,"Loaded %d vertices",models[childModelID].numVerts);
 						addChild(childName, curModelID);
 

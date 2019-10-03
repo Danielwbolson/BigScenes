@@ -17,14 +17,14 @@ struct Bounds {
 		   maxX(maxVx), maxY(maxVy), maxZ(maxVz),
 		   points(std::vector<glm::vec4>(8)) {
 	
-		points.push_back(glm::vec4(maxX, maxY, maxZ, 1));
-		points.push_back(glm::vec4(maxX, minY, maxZ, 1));
-		points.push_back(glm::vec4(maxX, maxY, minZ, 1));
-		points.push_back(glm::vec4(maxX, minY, minZ, 1));
-		points.push_back(glm::vec4(minX, maxY, maxZ, 1));
-		points.push_back(glm::vec4(minX, minY, maxZ, 1));
-		points.push_back(glm::vec4(minX, maxY, minZ, 1));
-		points.push_back(glm::vec4(minX, minY, minZ, 1));
+		points[0] = glm::vec4(maxX, maxY, maxZ, 1);
+		points[1] = glm::vec4(maxX, minY, maxZ, 1);
+		points[2] = glm::vec4(maxX, maxY, minZ, 1);
+		points[3] = glm::vec4(maxX, minY, minZ, 1);
+		points[4] = glm::vec4(minX, maxY, maxZ, 1);
+		points[5] = glm::vec4(minX, minY, maxZ, 1);
+		points[6] = glm::vec4(minX, maxY, minZ, 1);
+		points[7] = glm::vec4(minX, minY, minZ, 1);
 
 	}
 
@@ -40,11 +40,7 @@ struct Bounds {
 		maxY = b.maxY;
 		maxZ = b.maxZ;
 
-		points.clear();
-
-		for (int i = 0; i < b.points.size(); i++) {
-			points.push_back(b.points[i]);
-		}
+		points = b.points;
 
 		return *this;
 	}

@@ -58,7 +58,7 @@ void drawGeometry(Model model, int materialID, glm::mat4 transform, const glm::m
 	transform *= model.modelOffset;
 	textureWrap *= model.textureWrap; //TODO: Should textureWrap stack like this?
 
-
+	if (model.bounds == nullptr) return;
 	if (frustumCull(model, transform, projViewMat)) return;
 
 
@@ -93,37 +93,72 @@ void drawGeometry(Model model, int materialID, glm::mat4 transform, const glm::m
 bool frustumCull(const Model& model, const glm::mat4& transform, const glm::mat4& pv) {
 	//TODO: DANIEL --> Determine which models are even worth drawing
 /* http://www8.cs.umu.se/kurser/5DV051/HT12/lab/plane_extraction.pdf */
-	glm::vec4 left		= glm::vec4(pv[0][3] + pv[0][0], pv[1][3] + pv[1][0], pv[2][3] + pv[2][0], pv[3][3] + pv[3][0]);
-	glm::vec4 right		= glm::vec4(pv[0][3] - pv[0][0], pv[1][3] - pv[1][0], pv[2][3] - pv[2][0], pv[3][3] - pv[3][0]);
-	glm::vec4 bottom	= glm::vec4(pv[0][3] + pv[0][1], pv[1][3] + pv[1][1], pv[2][3] + pv[2][1], pv[3][3] + pv[3][1]);
-	glm::vec4 top		= glm::vec4(pv[0][3] - pv[0][1], pv[1][3] - pv[1][1], pv[2][3] - pv[2][1], pv[3][3] - pv[3][1]);
-	glm::vec4 nearPlane = glm::vec4(		   pv[0][2],			pv[1][2],			 pv[2][2],			  pv[3][2]);
-	glm::vec4 farPlane	= glm::vec4(pv[0][3] - pv[0][2], pv[1][3] - pv[1][2], pv[2][3] - pv[2][2], pv[3][3] - pv[3][2]);
+	glm::vec4 left = glm::vec4(
+		pv[0][3] + pv[0][0], 
+		pv[1][3] + pv[1][0], 
+		pv[2][3] + pv[2][0], 
+		pv[3][3] + pv[3][0]);
+	left /= glm::length(glm::vec3(left.x, left.y, left.z));
+
+	glm::vec4 right	= glm::vec4(
+		pv[0][3] - pv[0][0], 
+		pv[1][3] - pv[1][0], 
+		pv[2][3] - pv[2][0], 
+		pv[3][3] - pv[3][0]);
+	right /= glm::length(glm::vec3(right.x, right.y, right.z));
+
+	glm::vec4 bottom = glm::vec4(
+		pv[0][3] + pv[0][1], 
+		pv[1][3] + pv[1][1], 
+		pv[2][3] + pv[2][1], 
+		pv[3][3] + pv[3][1]);
+	bottom /= glm::length(glm::vec3(bottom.x, bottom.y, bottom.z));
+
+	glm::vec4 top = glm::vec4(
+		pv[0][3] - pv[0][1], 
+		pv[1][3] - pv[1][1], 
+		pv[2][3] - pv[2][1], 
+		pv[3][3] - pv[3][1]);
+	top /= glm::length(glm::vec3(top.x, top.y, top.z));
+
+	glm::vec4 nearPlane = glm::vec4(
+		pv[0][2], 
+		pv[1][2],
+		pv[2][2],
+		pv[3][2]);
+	nearPlane /= glm::length(glm::vec3(nearPlane.x, nearPlane.y, nearPlane.z));
+
+	glm::vec4 farPlane = glm::vec4(
+		pv[0][3] - pv[0][2],
+		pv[1][3] - pv[1][2], 
+		pv[2][3] - pv[2][2], 
+		pv[3][3] - pv[3][2]);
+	farPlane /= glm::length(glm::vec3(farPlane.x, farPlane.y, farPlane.z));
 
 	Bounds b = *(model.bounds);
-	glm::vec4 tbMax = transform * glm::vec4(b.Max(transform), 1);
-	glm::vec4 tbMin = transform * glm::vec4(b.Min(transform), 1);
+	glm::vec4 tbMax = glm::vec4(b.Max(transform), 1);
+	glm::vec4 tbMin = glm::vec4(b.Min(transform), 1);
 	glm::vec3 max = glm::vec3(tbMax.x, tbMax.y, tbMax.z);
 	glm::vec3 min = glm::vec3(tbMin.x, tbMin.y, tbMin.z);
 
-	std::vector<glm::vec3> cam_to_b;
-	cam_to_b.push_back(glm::vec3(max.x, max.y, max.z));
-	cam_to_b.push_back(glm::vec3(max.x, min.y, max.z));
-	cam_to_b.push_back(glm::vec3(max.x, max.y, min.z));
-	cam_to_b.push_back(glm::vec3(max.x, min.y, min.z));
-	cam_to_b.push_back(glm::vec3(min.x, max.y, max.z));
-	cam_to_b.push_back(glm::vec3(min.x, min.y, max.z));
-	cam_to_b.push_back(glm::vec3(min.x, max.y, min.z));
-	cam_to_b.push_back(glm::vec3(min.x, min.y, min.z));
+	std::vector<glm::vec3> cam_to_b =std::vector<glm::vec3>(8);
+	cam_to_b[0] = glm::vec3(max.x, max.y, max.z);
+	cam_to_b[1] = glm::vec3(max.x, min.y, max.z);
+	cam_to_b[2] = glm::vec3(max.x, max.y, min.z);
+	cam_to_b[3] = glm::vec3(max.x, min.y, min.z);
+	cam_to_b[4] = glm::vec3(min.x, max.y, max.z);
+	cam_to_b[5] = glm::vec3(min.x, min.y, max.z);
+	cam_to_b[6] = glm::vec3(min.x, max.y, min.z);
+	cam_to_b[7] = glm::vec3(min.x, min.y, min.z);
 
 	for (int j = 0; j < cam_to_b.size(); j++) {
 		int success = 0;
-		success += (left.x		* cam_to_b[j].x + left.y	  * cam_to_b[j].y + left.z		* cam_to_b[j].z + left.w > 0);
-		success += (right.x		* cam_to_b[j].x + right.y	  * cam_to_b[j].y + right.z		* cam_to_b[j].z + right.w > 0);
-		success += (top.x		* cam_to_b[j].x + top.y		  * cam_to_b[j].y + top.z		* cam_to_b[j].z + top.w > 0);
-		success += (bottom.x	* cam_to_b[j].x + bottom.y	  * cam_to_b[j].y + bottom.z	* cam_to_b[j].z + bottom.w > 0);
-		success += (nearPlane.x * cam_to_b[j].x + nearPlane.y * cam_to_b[j].y + nearPlane.z	* cam_to_b[j].z + nearPlane.w > 0);
-		success += (farPlane.x  * cam_to_b[j].x + farPlane.y  * cam_to_b[j].y + farPlane.z	* cam_to_b[j].z + farPlane.w > 0);
+		success += (left.x * cam_to_b[j].x		+ left.y * cam_to_b[j].y		+ left.z * cam_to_b[j].z		+ left.w > 0);
+		success += (right.x * cam_to_b[j].x		+ right.y * cam_to_b[j].y		+ right.z * cam_to_b[j].z		+ right.w > 0);
+		success += (top.x * cam_to_b[j].x		+ top.y * cam_to_b[j].y			+ top.z * cam_to_b[j].z			+ top.w > 0);
+		success += (bottom.x * cam_to_b[j].x	+ bottom.y	* cam_to_b[j].y		+ bottom.z * cam_to_b[j].z		+ bottom.w > 0);
+		success += (nearPlane.x * cam_to_b[j].x + nearPlane.y * cam_to_b[j].y	+ nearPlane.z * cam_to_b[j].z	+ nearPlane.w > 0);
+		success += (farPlane.x * cam_to_b[j].x	+ farPlane.y * cam_to_b[j].y	+ farPlane.z * cam_to_b[j].z	+ farPlane.w > 0);
 
 		if (success == 6) {
 			return false;

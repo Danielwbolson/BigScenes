@@ -70,6 +70,7 @@ void drawGeometryShadow(int shaderProgram, Model model, Material material, glm::
 	}
 	
 	if (!model.modelData) return;
+	if (model.name.find("lod3") == std::string::npos) return; // Only want to cast shadows based off lowest level of detail
 
 	transform *= model.modelOffset;
 	GLint uniModelMatrixShadow = glGetUniformLocation(depthShader.ID, "model");

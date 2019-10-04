@@ -1,5 +1,21 @@
 
 modelDir = ./models/
 
+[Chalet_lod0]
+objModel = chalet_lod0.obj
+
+[Chalet_lod1]
+objModel = chalet_lod1.obj
+
+[Chalet_lod2]
+objModel = chalet_lod2.obj
+
+[Chalet_lod3]
+objModel = chalet_lod3.obj
+
 [Chalet]
-objModel = chalet.obj
+child [Chalet_lod0]
+child [Chalet_lod1]
+child [Chalet_lod2]
+child [Chalet_lod3]
+

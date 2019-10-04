@@ -94,6 +94,7 @@ struct Model{
 	std::vector<Model*> childModel;
 
 	Bounds* bounds = nullptr;
+	int lodIndex = rand() % 4;
 };
 
 void resetModels();

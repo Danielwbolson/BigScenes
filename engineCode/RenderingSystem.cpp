@@ -28,10 +28,18 @@ GLint xxxID;
 
 GLuint colliderVAO; //Build a Vertex Array Object for the collider
 
-void drawGeometry(Model model, int matID, glm::mat4 transform = glm::mat4(), const glm::mat4& projViewMat = glm::mat4(), glm::vec2 textureWrap=glm::vec2(1,1), glm::vec3 modelColor=glm::vec3(1,1,1));
+void drawGeometry(
+	Model model, 
+	int matID, 
+	glm::mat4 transform = glm::mat4(), 
+	const glm::mat4& projViewMat = glm::mat4(),
+	const int& lodIndex = 3,
+	glm::vec2 textureWrap=glm::vec2(1,1), 
+	glm::vec3 modelColor=glm::vec3(1,1,1));
+
 bool frustumCull(const Model& model, const glm::mat4& transform, const glm::mat4& projViewMat);
 
-void drawGeometry(Model model, int materialID, glm::mat4 transform, const glm::mat4& projViewMat, glm::vec2 textureWrap, glm::vec3 modelColor){
+void drawGeometry(Model model, int materialID, glm::mat4 transform, const glm::mat4& projViewMat, const int& lodIndex, glm::vec2 textureWrap, glm::vec3 modelColor){
 	//printf("Model: %s, num Children %d\n",model.name.c_str(), model.numChildren);
 	//printf("Material ID: %d (passed in id = %d)\n", model.materialID,materialID);
 	//printf("xyx %f %f %f %f\n",model.transform[0][0],model.transform[0][1],model.transform[0][2],model.transform[0][3]);
@@ -51,7 +59,7 @@ void drawGeometry(Model model, int materialID, glm::mat4 transform, const glm::m
 	//textureWrap *= model.textureWrap; //TODO: Where best to apply textureWrap transform?
 	
 	for (int i = 0; i < model.numChildren; i++){
-		drawGeometry(*model.childModel[i], materialID, transform, projViewMat, textureWrap, modelColor);
+		drawGeometry(*model.childModel[i], materialID, transform, projViewMat, lodIndex, textureWrap, modelColor);
 	}
 	if (!model.modelData) return;
 	
@@ -59,6 +67,8 @@ void drawGeometry(Model model, int materialID, glm::mat4 transform, const glm::m
 	textureWrap *= model.textureWrap; //TODO: Should textureWrap stack like this?
 
 	if (model.bounds == nullptr) return;
+	if (model.name.find("lod" + std::to_string(lodIndex)) == std::string::npos) return;
+
 	if (frustumCull(model, transform, projViewMat)) return;
 
 
@@ -486,24 +496,7 @@ void drawSceneGeometry(vector<Model*> toDraw, const glm::mat4& projViewMat){
 	totalTriangles = 0;
 	for (size_t i = 0; i < toDraw.size(); i++){
 		//printf("%s - %d\n",toDraw[i]->name.c_str(),i);
-		drawGeometry(*toDraw[i], -1, I, projViewMat);
-	}
-}
-
-void drawSceneGeometry(vector<Model*> toDraw, glm::vec3 forward, glm::vec3 camPos){
-	glBindVertexArray(modelsVAO);
-
-	float radius = 1;
-
-	glm::mat4 I;
-	totalTriangles = 0;
-	for (size_t i = 0; i < toDraw.size(); i++){
-		//printf("%s - %d\n",toDraw[i]->name.c_str(),i);
-		glm::vec4 pos4 = models[toDraw[i]->ID].transform*glm::vec4(0,0,0,1);
-		float d = glm::dot(glm::vec3(pos4)-camPos,forward);
-		if (d < radius) continue;
-
-		drawGeometry(*toDraw[i], -1, I);
+		drawGeometry(*toDraw[i], -1, I, projViewMat, toDraw[i]->lodIndex);
 	}
 }
 

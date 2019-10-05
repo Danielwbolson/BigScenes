@@ -294,7 +294,7 @@ int main(int argc, char *argv[]){
 		glClearColor(0,0,0,1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		drawSceneGeometry(curScene.toDraw, proj * view); //Pass 2A: Draw Scene Geometry
+		drawSceneGeometry(curScene.toDraw, proj, view); //Pass 2A: Draw Scene Geometry
 		//drawSceneGeometry(curScene.toDraw, camDir, camPos); //Pass 2A: Draw Scene Geometry
 		//TODO: Add a pass which draws some items without depth culling (e.g. keys, items)
 		if (drawColliders) drawColliderGeometry(); //Pass 2B: Draw Colliders

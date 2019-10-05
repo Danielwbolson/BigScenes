@@ -351,7 +351,7 @@ void loadModel(string fileName){
     }
 		else if (commandStr == "child"){ 
 			int openBracket = line.find("[")+1;
-		  int modelNameLength = line.find("]")-openBracket;
+			int modelNameLength = line.find("]")-openBracket;
 			string childName = line.substr(openBracket,modelNameLength);
 			LOG_F(1,"Adding Child with name %s to model %d",childName.c_str(), curModelID);
 			addChild(childName, curModelID);

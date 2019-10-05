@@ -21,6 +21,8 @@ int sphereVerts; //Number of verts in the colliders spheres
 
 int totalTriangles = 0;
 
+Bounds bounds;
+
 GLint uniColorID, uniEmissiveID, uniUseTextureID, modelColorID;
 GLint metallicID, roughnessID, iorID, reflectivenessID;
 GLint uniModelMatrix, colorTextureID, texScaleID, biasID, pcfID;
@@ -28,16 +30,9 @@ GLint xxxID;
 
 GLuint colliderVAO; //Build a Vertex Array Object for the collider
 
-void drawGeometry(
-	Model model, 
-	int matID, 
-	glm::mat4 transform = glm::mat4(), 
-	const glm::mat4& projViewMat = glm::mat4(),
-	const int& lodIndex = 3,
-	glm::vec2 textureWrap=glm::vec2(1,1), 
-	glm::vec3 modelColor=glm::vec3(1,1,1));
-
+void drawGeometry(Model model, int matID, glm::mat4 transform = glm::mat4(), const glm::mat4& projViewMat = glm::mat4(),const int& lodIndex = 3,glm::vec2 textureWrap=glm::vec2(1,1), glm::vec3 modelColor=glm::vec3(1,1,1));
 bool frustumCull(const Model& model, const glm::mat4& transform, const glm::mat4& projViewMat);
+void assignLod(Model model, const glm::mat4& proj, glm::mat4 transform = glm::mat4());
 
 void drawGeometry(Model model, int materialID, glm::mat4 transform, const glm::mat4& projViewMat, const int& lodIndex, glm::vec2 textureWrap, glm::vec3 modelColor){
 	//printf("Model: %s, num Children %d\n",model.name.c_str(), model.numChildren);
@@ -100,84 +95,6 @@ void drawGeometry(Model model, int materialID, glm::mat4 transform, const glm::m
 	glDrawArrays(GL_TRIANGLES, model.startVertex, model.numVerts); //(Primitive Type, Start Vertex, End Vertex) //Draw only 1st object
 }
 
-bool frustumCull(const Model& model, const glm::mat4& transform, const glm::mat4& pv) {
-	//TODO: DANIEL --> Determine which models are even worth drawing
-/* http://www8.cs.umu.se/kurser/5DV051/HT12/lab/plane_extraction.pdf */
-	glm::vec4 left = glm::vec4(
-		pv[0][3] + pv[0][0], 
-		pv[1][3] + pv[1][0], 
-		pv[2][3] + pv[2][0], 
-		pv[3][3] + pv[3][0]);
-	left /= glm::length(glm::vec3(left.x, left.y, left.z));
-
-	glm::vec4 right	= glm::vec4(
-		pv[0][3] - pv[0][0], 
-		pv[1][3] - pv[1][0], 
-		pv[2][3] - pv[2][0], 
-		pv[3][3] - pv[3][0]);
-	right /= glm::length(glm::vec3(right.x, right.y, right.z));
-
-	glm::vec4 bottom = glm::vec4(
-		pv[0][3] + pv[0][1], 
-		pv[1][3] + pv[1][1], 
-		pv[2][3] + pv[2][1], 
-		pv[3][3] + pv[3][1]);
-	bottom /= glm::length(glm::vec3(bottom.x, bottom.y, bottom.z));
-
-	glm::vec4 top = glm::vec4(
-		pv[0][3] - pv[0][1], 
-		pv[1][3] - pv[1][1], 
-		pv[2][3] - pv[2][1], 
-		pv[3][3] - pv[3][1]);
-	top /= glm::length(glm::vec3(top.x, top.y, top.z));
-
-	glm::vec4 nearPlane = glm::vec4(
-		pv[0][2], 
-		pv[1][2],
-		pv[2][2],
-		pv[3][2]);
-	nearPlane /= glm::length(glm::vec3(nearPlane.x, nearPlane.y, nearPlane.z));
-
-	glm::vec4 farPlane = glm::vec4(
-		pv[0][3] - pv[0][2],
-		pv[1][3] - pv[1][2], 
-		pv[2][3] - pv[2][2], 
-		pv[3][3] - pv[3][2]);
-	farPlane /= glm::length(glm::vec3(farPlane.x, farPlane.y, farPlane.z));
-
-	Bounds b = *(model.bounds);
-	glm::vec4 tbMax = glm::vec4(b.Max(transform), 1);
-	glm::vec4 tbMin = glm::vec4(b.Min(transform), 1);
-	glm::vec3 max = glm::vec3(tbMax.x, tbMax.y, tbMax.z);
-	glm::vec3 min = glm::vec3(tbMin.x, tbMin.y, tbMin.z);
-
-	std::vector<glm::vec3> cam_to_b =std::vector<glm::vec3>(8);
-	cam_to_b[0] = glm::vec3(max.x, max.y, max.z);
-	cam_to_b[1] = glm::vec3(max.x, min.y, max.z);
-	cam_to_b[2] = glm::vec3(max.x, max.y, min.z);
-	cam_to_b[3] = glm::vec3(max.x, min.y, min.z);
-	cam_to_b[4] = glm::vec3(min.x, max.y, max.z);
-	cam_to_b[5] = glm::vec3(min.x, min.y, max.z);
-	cam_to_b[6] = glm::vec3(min.x, max.y, min.z);
-	cam_to_b[7] = glm::vec3(min.x, min.y, min.z);
-
-	for (int j = 0; j < cam_to_b.size(); j++) {
-		int success = 0;
-		success += (left.x * cam_to_b[j].x		+ left.y * cam_to_b[j].y		+ left.z * cam_to_b[j].z		+ left.w > 0);
-		success += (right.x * cam_to_b[j].x		+ right.y * cam_to_b[j].y		+ right.z * cam_to_b[j].z		+ right.w > 0);
-		success += (top.x * cam_to_b[j].x		+ top.y * cam_to_b[j].y			+ top.z * cam_to_b[j].z			+ top.w > 0);
-		success += (bottom.x * cam_to_b[j].x	+ bottom.y	* cam_to_b[j].y		+ bottom.z * cam_to_b[j].z		+ bottom.w > 0);
-		success += (nearPlane.x * cam_to_b[j].x + nearPlane.y * cam_to_b[j].y	+ nearPlane.z * cam_to_b[j].z	+ nearPlane.w > 0);
-		success += (farPlane.x * cam_to_b[j].x	+ farPlane.y * cam_to_b[j].y	+ farPlane.z * cam_to_b[j].z	+ farPlane.w > 0);
-
-		if (success == 6) {
-			return false;
-		}
-	}
-
-	return true;
-
-}
 void drawColliderGeometry(){ //, Material material //TODO: Take in a material for the colliders
 	//printf("Drawing %d Colliders\n",collisionModels.size());
 	//printf("Material ID: %d\n", material);
@@ -216,6 +133,101 @@ void drawColliderGeometry(){ //, Material material //TODO: Take in a material fo
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
+bool frustumCull(const Model& model, const glm::mat4& transform, const glm::mat4& pv) {
+	//TODO: DANIEL --> Determine which models are even worth drawing
+/* http://www8.cs.umu.se/kurser/5DV051/HT12/lab/plane_extraction.pdf */
+	glm::vec4 left = glm::vec4(
+		pv[0][3] + pv[0][0],
+		pv[1][3] + pv[1][0],
+		pv[2][3] + pv[2][0],
+		pv[3][3] + pv[3][0]);
+
+	glm::vec4 right = glm::vec4(
+		pv[0][3] - pv[0][0],
+		pv[1][3] - pv[1][0],
+		pv[2][3] - pv[2][0],
+		pv[3][3] - pv[3][0]);
+
+	glm::vec4 bottom = glm::vec4(
+		pv[0][3] + pv[0][1],
+		pv[1][3] + pv[1][1],
+		pv[2][3] + pv[2][1],
+		pv[3][3] + pv[3][1]);
+
+	glm::vec4 top = glm::vec4(
+		pv[0][3] - pv[0][1],
+		pv[1][3] - pv[1][1],
+		pv[2][3] - pv[2][1],
+		pv[3][3] - pv[3][1]);
+
+	glm::vec4 nearPlane = glm::vec4(
+		pv[0][2],
+		pv[1][2],
+		pv[2][2],
+		pv[3][2]);
+
+	glm::vec4 farPlane = glm::vec4(
+		pv[0][3] - pv[0][2],
+		pv[1][3] - pv[1][2],
+		pv[2][3] - pv[2][2],
+		pv[3][3] - pv[3][2]);
+
+	Bounds b = *(model.bounds);
+	glm::vec4 tbMax = glm::vec4(b.Max(transform), 1);
+	glm::vec4 tbMin = glm::vec4(b.Min(transform), 1);
+	glm::vec3 max = glm::vec3(tbMax.x, tbMax.y, tbMax.z);
+	glm::vec3 min = glm::vec3(tbMin.x, tbMin.y, tbMin.z);
+
+	std::vector<glm::vec3> cam_to_b = std::vector<glm::vec3>(8);
+	cam_to_b[0] = glm::vec3(max.x, max.y, max.z);
+	cam_to_b[1] = glm::vec3(max.x, min.y, max.z);
+	cam_to_b[2] = glm::vec3(max.x, max.y, min.z);
+	cam_to_b[3] = glm::vec3(max.x, min.y, min.z);
+	cam_to_b[4] = glm::vec3(min.x, max.y, max.z);
+	cam_to_b[5] = glm::vec3(min.x, min.y, max.z);
+	cam_to_b[6] = glm::vec3(min.x, max.y, min.z);
+	cam_to_b[7] = glm::vec3(min.x, min.y, min.z);
+
+	for (int j = 0; j < cam_to_b.size(); j++) {
+		int success = 0;
+		success += (left.x * cam_to_b[j].x + left.y * cam_to_b[j].y + left.z * cam_to_b[j].z + left.w > 0);
+		success += (right.x * cam_to_b[j].x + right.y * cam_to_b[j].y + right.z * cam_to_b[j].z + right.w > 0);
+		success += (top.x * cam_to_b[j].x + top.y * cam_to_b[j].y + top.z * cam_to_b[j].z + top.w > 0);
+		success += (bottom.x * cam_to_b[j].x + bottom.y	* cam_to_b[j].y + bottom.z * cam_to_b[j].z + bottom.w > 0);
+		success += (nearPlane.x * cam_to_b[j].x + nearPlane.y * cam_to_b[j].y + nearPlane.z * cam_to_b[j].z + nearPlane.w > 0);
+		success += (farPlane.x * cam_to_b[j].x + farPlane.y * cam_to_b[j].y + farPlane.z * cam_to_b[j].z + farPlane.w > 0);
+
+		if (success == 6) {
+			return false;
+		}
+	}
+
+	return true;
+
+}
+
+void assignLod(Model model, const glm::mat4& proj, glm::mat4 transform) {
+
+	transform *= model.transform;
+
+	for (int i = 0; i < model.numChildren; i++) {
+		assignLod(*model.childModel[i], proj, transform);
+	}
+
+	// Get bounds from the top lod and ignore the weird fake children stephen creates
+	if (model.name.find("lod0") != std::string::npos && model.name.find("Child") == std::string::npos) {
+		bounds = *model.bounds;
+	}
+	// Ignore the parent model by looking for model with 4 children (level of details)
+	if (model.numChildren == 4) return;
+	// We only want to work with the original model, not levels of detail
+	if (model.name.find("lod") != std::string::npos) return;
+
+	glm::vec4 max = proj * glm::vec4(bounds.Max(transform), 1);
+	glm::vec4 min = proj * glm::vec4(bounds.Min(transform), 1);
+
+	float screenRatio = ((max.y / max.w) - (min.y / min.w)) / 2;
+}
 
 //TODO: When is the best time to call this? This loads all textures, should we call it per-texture instead?
 void loadTexturesToGPU(){
@@ -489,14 +501,15 @@ void updatePRBShaderSkybox(){
 	}
 }
 
-void drawSceneGeometry(vector<Model*> toDraw, const glm::mat4& projViewMat){
+void drawSceneGeometry(vector<Model*> toDraw, const glm::mat4& proj, const glm::mat4& view){
 	glBindVertexArray(modelsVAO);
 
 	glm::mat4 I;
 	totalTriangles = 0;
 	for (size_t i = 0; i < toDraw.size(); i++){
 		//printf("%s - %d\n",toDraw[i]->name.c_str(),i);
-		drawGeometry(*toDraw[i], -1, I, projViewMat, toDraw[i]->lodIndex);
+		assignLod(*toDraw[i], proj * view);
+		drawGeometry(*toDraw[i], -1, I, proj * view, toDraw[i]->lodIndex);
 	}
 }
 

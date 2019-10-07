@@ -53,7 +53,8 @@ void createOpenGLWindow(int w, int h, int fullscreen){
 	sdlRenderer = SDL_GetRenderer(sdlWindow);
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");  // make the scaled rendering look smoother.
 
-  setWindowSize(w, h, fullscreen); 
+  setWindowSize(w, h, fullscreen);
+  SDL_GL_SetSwapInterval(0);
 }
 
 void windowCleanup(){

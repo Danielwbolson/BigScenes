@@ -16,7 +16,7 @@ using std::string;
 using std::ifstream;
 using std::copy;
 
-Model models[4000];
+Model models[100000];
 int numModels = 0;
 
 void resetModels(){
@@ -173,6 +173,7 @@ void loadModel(string fileName){
 			}
 			LOG_F(1,"Loaded %d lines",numLines);
 			models[curModelID].numVerts = numLines/8;
+			models[curModelID].bounds = new Bounds(-2, -2, -2, 2, 2, 2);
 			modelFile.close();
     }
 		else if (commandStr == "objModel"){ 

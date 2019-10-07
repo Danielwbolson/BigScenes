@@ -2,7 +2,7 @@
 print("Starting Lua for Daniel")
 
 CameraPosX = 15.0
-CameraPosY = 3.0
+CameraPosY = 1.0
 CameraPosZ = 5.0
 
 CameraDirX = 0.0

@@ -105,7 +105,7 @@ int addModel(string modelName);
 void addChild(string childName, int curModelID);
 
 //Global Model List
-extern Model models[4000];
+extern Model models[100000];
 extern int numModels;
 
 #endif //MODELS_H

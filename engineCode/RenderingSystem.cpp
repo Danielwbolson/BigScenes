@@ -9,6 +9,7 @@
 #include "Shader.h"
 #include <external/loguru.hpp>
 #include <external/stb_image.h>
+#include <algorithm>
 
 
 using std::vector;
@@ -32,7 +33,7 @@ GLuint colliderVAO; //Build a Vertex Array Object for the collider
 
 void drawGeometry(Model model, int matID, glm::mat4 transform = glm::mat4(), const glm::mat4& projViewMat = glm::mat4(),const int& lodIndex = 3,glm::vec2 textureWrap=glm::vec2(1,1), glm::vec3 modelColor=glm::vec3(1,1,1));
 bool frustumCull(const Model& model, const glm::mat4& transform, const glm::mat4& projViewMat);
-void assignLod(Model model, const glm::mat4& proj, glm::mat4 transform = glm::mat4());
+void assignLod(Model model, const glm::mat4& projMat, const glm::mat4& viewMat, int* lodIndex, glm::mat4 transform = glm::mat4());
 
 void drawGeometry(Model model, int materialID, glm::mat4 transform, const glm::mat4& projViewMat, const int& lodIndex, glm::vec2 textureWrap, glm::vec3 modelColor){
 	//printf("Model: %s, num Children %d\n",model.name.c_str(), model.numChildren);
@@ -206,12 +207,12 @@ bool frustumCull(const Model& model, const glm::mat4& transform, const glm::mat4
 
 }
 
-void assignLod(Model model, const glm::mat4& proj, glm::mat4 transform) {
+void assignLod(Model model, const glm::mat4& projMat, const glm::mat4& viewMat, int* lodIndex, glm::mat4 transform) {
 
 	transform *= model.transform;
 
 	for (int i = 0; i < model.numChildren; i++) {
-		assignLod(*model.childModel[i], proj, transform);
+		assignLod(*model.childModel[i], projMat, viewMat, lodIndex, transform);
 	}
 
 	// Get bounds from the top lod and ignore the weird fake children stephen creates
@@ -223,10 +224,26 @@ void assignLod(Model model, const glm::mat4& proj, glm::mat4 transform) {
 	// We only want to work with the original model, not levels of detail
 	if (model.name.find("lod") != std::string::npos) return;
 
-	glm::vec4 max = proj * glm::vec4(bounds.Max(transform), 1);
-	glm::vec4 min = proj * glm::vec4(bounds.Min(transform), 1);
+	glm::vec4 max = projMat * glm::vec4(bounds.Max(viewMat * transform), 1);
+	glm::vec4 min = projMat * glm::vec4(bounds.Min(viewMat * transform), 1);
 
-	float screenRatio = ((max.y / max.w) - (min.y / min.w)) / 2;
+	max /= max.w;
+	min /= min.w;
+
+	max.y = (max.y + 1) / 2.0;
+	min.y = (min.y + 1) / 2.0;
+
+	float screenMaxY = screenHeight * max.y; // (max.y + 1) / 2.0;
+	float screenMinY = screenHeight * min.y; // (min.y + 1) / 2.0;
+
+	float screenRatio = (screenMaxY - screenMinY) / screenHeight;
+
+	// If a model is behind us or extends out of the window, make it lod0
+	if (screenRatio < 0 || transform[3].z >= -(viewMat[3].z + 0.001f)) { *lodIndex = 0; } 
+	else if (screenRatio < 0.01) { *lodIndex = 3; }
+	else if (screenRatio < 0.25) { *lodIndex = 2; }
+	else if (screenRatio < 0.5) { *lodIndex = 1; }
+	else { *lodIndex =  0; }
 }
 
 //TODO: When is the best time to call this? This loads all textures, should we call it per-texture instead?
@@ -501,15 +518,35 @@ void updatePRBShaderSkybox(){
 	}
 }
 
+struct CompareDist {
+	CompareDist(const glm::mat4 mat) : m(mat) {
+		camPos = glm::vec3(-m[3].x, -m[3].y, -m[3].z);
+	}
+
+	bool operator ()(const Model* a, const Model* b) {
+		glm::vec3 aPos = glm::vec3(a->transform[3].x, a->transform[3].y, a->transform[3].z);
+		glm::vec3 bPos = glm::vec3(b->transform[3].x, b->transform[3].y, b->transform[3].z);
+
+		return (glm::length(aPos - camPos) < glm::length(bPos - camPos));
+	}
+
+	glm::mat4 m;
+	glm::vec3 camPos;
+};
+
 void drawSceneGeometry(vector<Model*> toDraw, const glm::mat4& proj, const glm::mat4& view){
+
+	// Sort our models to make use of depth buffer
+	std::sort(toDraw.begin(), toDraw.end(), CompareDist(view));
 	glBindVertexArray(modelsVAO);
 
 	glm::mat4 I;
 	totalTriangles = 0;
 	for (size_t i = 0; i < toDraw.size(); i++){
 		//printf("%s - %d\n",toDraw[i]->name.c_str(),i);
-		assignLod(*toDraw[i], proj * view);
-		drawGeometry(*toDraw[i], -1, I, proj * view, toDraw[i]->lodIndex);
+		int lodIndex = 0; 
+		assignLod(*toDraw[i], proj, view, &lodIndex);
+		drawGeometry(*toDraw[i], -1, I, proj * view, lodIndex);
 	}
 }
 

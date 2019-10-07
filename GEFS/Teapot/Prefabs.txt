@@ -1,0 +1,20 @@
+
+modelDir = ./models/
+
+[teapot_lod0]
+flatModel = teapot.txt
+
+[teapot_lod1]
+flatModel = teapot.txt
+
+[teapot_lod2]
+flatModel = teapot.txt
+
+[teapot_lod3]
+flatModel = teapot.txt
+
+[Teapot]
+child [teapot_lod0]
+child [teapot_lod1]
+child [teapot_lod2]
+child [teapot_lod3]

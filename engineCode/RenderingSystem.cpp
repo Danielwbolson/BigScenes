@@ -240,7 +240,7 @@ void assignLod(Model model, const glm::mat4& projMat, const glm::mat4& viewMat, 
 
 	// If a model is behind us or extends out of the window, make it lod0
 	if (screenRatio < 0 || transform[3].z >= -(viewMat[3].z + 0.001f)) { *lodIndex = 0; } 
-	else if (screenRatio < 0.01) { *lodIndex = 3; }
+	else if (screenRatio < 0.05) { *lodIndex = 3; }
 	else if (screenRatio < 0.25) { *lodIndex = 2; }
 	else if (screenRatio < 0.5) { *lodIndex = 1; }
 	else { *lodIndex =  0; }

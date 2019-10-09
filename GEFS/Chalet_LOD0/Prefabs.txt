@@ -1,0 +1,9 @@
+
+modelDir = ./models/
+
+[Chalet_lod0]
+objModel = chalet_lod0.obj
+
+[Chalet]
+child [Chalet_lod0]
+

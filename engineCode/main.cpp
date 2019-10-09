@@ -239,6 +239,12 @@ int main(int argc, char *argv[]){
 		vec3 camUp = getCameraUpFromLau(L);
 		vec3 lookatPoint = camPos + camDir;
 
+		// Get our overhead camera
+		vec3 debugCamPos = glm::vec3(30, 2, 0);
+		vec3 debugCamDir = glm::normalize(glm::vec3(0, -0.5, -1));
+		vec3 debugCamUp = glm::vec3(0, 0, -1);
+		vec3 debugLookatPoint = debugCamPos + debugCamDir;
+
 		//LOG_F(3,"Read Camera from Lua");
 
 		//TODO: Allow Lua script to set Lights dynamically (it's currently static)
@@ -283,11 +289,12 @@ int main(int argc, char *argv[]){
 
 		//------ PASS 2 - Main (PBR) Shading Pass --------------------
 
-		mat4 view = glm::lookAt(camPos,	lookatPoint, camUp);
+		mat4 view = glm::lookAt(camPos, lookatPoint, camUp);
+		mat4 debugView = glm::lookAt(debugCamPos, debugLookatPoint, debugCamUp);
 		mat4 proj = glm::perspective(FOV * 3.14f/180, screenWidth / (float) screenHeight, nearPlane, farPlane); //FOV, aspect, near, far
 		//view = lightViewMatrix; proj = lightProjectionMatrix;  //This was useful to visualize the shadowmap
 
-		setPBRShaderUniforms(view, proj, lightViewMatrix, lightProjectionMatrix, useShadowMap);
+		setPBRShaderUniforms(debugView, proj, lightViewMatrix, lightProjectionMatrix, useShadowMap);
 		updatePRBShaderSkybox(); //TODO: We only need to do this if the skybox changes
 
 		// Clear the screen to default color

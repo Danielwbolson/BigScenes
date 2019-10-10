@@ -4,6 +4,6 @@ Part of a project for CSCI8980 in the Fall of 2019 at the University of Minnesot
 quite a few parts. I implemented frustum culling, level-of-detail based on pixel-height of a model, and simpler shadow calculations
 and incorporated them into the starter code.
 
-For downloading and running, follow the link here: https://docs.google.com/document/d/13uarCrk_M9CCEhahINcPZuX_rmrxBaiUBfCNRE2h8Fs/edit
+For downloading and running please refer to the INSTRUCTIONS directory.
 
 The game scene I created is GEFS/Chalet/
